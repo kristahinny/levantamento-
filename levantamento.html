@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levantamento de Requisitos de Impressão</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Coloca o vídeo atrás do conteúdo */
+            object-fit: cover;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8); /* Fundo semi-transparente */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+
+        h1, h2 {
+            color: #2980b9;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        label {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #333; /* Cor do rótulo */
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #2980b9; /* Cor de destaque ao focar */
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .input-group input[type="text"] {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .input-group select {
+            flex: 1;
+        }
+
+        .lined-textarea {
+            background: repeating-linear-gradient(
+                white,
+                white 27px,
+                #ccc 28px
+            );
+            line-height: 28px;
+            border: 1px solid #ccc;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        #report {
+            display: none;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Vídeo de fundo -->
+    <video class="background-video" autoplay loop muted>
+        <source src="video.mp4" type="video/mp4">
+        Seu navegador não suporta o elemento de vídeo.
+    </video>
+
+    <div class="content">
+        <h1>Levantamento de Requisitos de Impressão de todo Departamento</h1>
+        <form id="surveyForm">
+            <h2>Informações Pessoais</h2>
+            <div class="input-group">
+                <input type="text" id="filledByName" name="filledByName" placeholder="Nome">
+                <input type="text" id="filledByDepartment" name="filledByDepartment" placeholder="Departamento">
+                <input type="text" id="filledByPosition" name="filledByPosition" placeholder="Cargo">
+                <select id="department" name="department">
+                    <option value="Diretoria">Diretoria</option>
+                    <option value="Financeiro">Financeiro</option>
+                    <option value="Suprimentos">Suprimentos</option>
+                    <option value="TI">TI</option>
+                    <option value="RH">RH</option>
+                    <option value="Vendas">Vendas</option>
+                    <option value="Qualidade">Qualidade</option>
+                    <option value="Almoxarifado">Almoxarifado</option>
+                    <option value="Logistica">Logistica</option>
+                    <option value="Montagem">Montagem</option>
+                    <option value="Engenharia">Engenharia</option>
+                    <!-- Outras opções aqui -->
+                </select>
+            </div>
+
+            <h2>Documentos Impressos Regularmente</h2>
+            <textarea id="printedDocuments" name="printedDocuments" rows="4" placeholder="Documentos Impressos Regularmente" class="lined-textarea"></textarea>
+
+            <h2>Frequência de Impressão</h2>
+            <textarea id="printFrequency" name="printFrequency" rows="4" placeholder="Frequência de Impressão" class="lined-textarea"></textarea>
+
+            <h2>Usuários e Finalidade</h2>
+            <textarea id="usersPurpose" name="usersPurpose" rows="4" placeholder="Usuários e Finalidade" class="lined-textarea"></textarea>
+
+            <h2>Problemas Identificados no Processo de Impressão</h2>
+            <textarea id="printingIssues" name="printingIssues" rows="4" placeholder="Problemas Identificados no Processo de Impressão" class="lined-textarea"></textarea>
+
+            <div style="display: flex; justify-content: space-between;">
+                <button type="button" onclick="generateReport()">Gerar Relatório</button>
+                <button type="button" onclick="generatePDF()">Gerar PDF</button>
+            </div>
+        </form>
+
+        <div id="report">
+            <h2>Relatório Gerado</h2>
+            <pre id="reportContent"></pre>
+            <a id="downloadLink" href="#">Baixar Relatório PDF</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script>
+        // Verificar se o dispositivo é móvel
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        function generateReport() {
+            const form = document.getElementById('surveyForm');
+            const filledByName = form.filledByName.value;
+            const filledByDepartment = form.filledByDepartment.value;
+            const filledByPosition = form.filledByPosition.value;
+            const department = form.department.value;
+            const printedDocuments = form.printedDocuments.value;
+            const printFrequency = form.printFrequency.value;
+            const usersPurpose = form.usersPurpose.value;
+            const printingIssues = form.printingIssues.value;
+
+            // Exemplo de relatório com as informações coletadas
+            const report = `
+                Informações Pessoais:
+                Nome: ${filledByName}
+                Departamento: ${filledByDepartment}
+                Cargo: ${filledByPosition}
+
+                Departamento Avaliado: ${department}
+
+
+                Documentos Impressos Regularmente:
+                ${printedDocuments}
+
+                Frequência de Impressão:
+                ${printFrequency}
+
+                Usuários e Finalidade:
+                ${usersPurpose}
+
+                Problemas Identificados no Processo de Impressão:
+                ${printingIssues}
+            `;
+
+            // Exibir o relatório no elemento HTML
+            document.getElementById('reportContent').textContent = report;
+            document.getElementById('report').style.display = 'block';
+        }
+
+        function generatePDF() {
+    generateReport(); // Chamar a função para gerar o relatório primeiro
+
+    const reportText = document.getElementById('reportContent').textContent;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'portrait', // Orientação da página
+        unit: 'mm', // Unidade de medida
+        format: 'a4' // Tamanho da página
+    });
+
+    const lines = doc.splitTextToSize(reportText, 180); // Ajuste a largura para caber no PDF
+
+    doc.setFontSize(10);
+    let y = 10;
+    lines.forEach((line, index) => {
+        if (y > 287) { // Verificar se o texto excede o espaço disponível na página atual (A4: 297mm de altura - margem inferior de 10mm)
+            doc.addPage(); // Adicionar nova página
+            y = 10; // Reiniciar a posição y para a nova página
+        }
+        doc.text(line, 10, y);
+        y += 10; // Ajuste a altura da linha conforme necessário
+    });
+
+    doc.save('relatorio.pdf');
+}
+
+
+
+        // Chamar as funções corretas ao clicar nos botões, dependendo do dispositivo
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateButton = document.querySelector('#generateButton');
+            const generatePDFButton = document.querySelector('#generatePDFButton');
+
+            if (isMobile) {
+                generateButton.addEventListener('touchstart', generateReport);
+                generatePDFButton.addEventListener('touchstart', generatePDF);
+            } else {
+                generateButton.addEventListener('click', generateReport);
+                generatePDFButton.addEventListener('click', generatePDF);
+            }
+        });
+    </script>
+</body>
+</html>
